@@ -1,11 +1,8 @@
-import { randomUUID } from "crypto";
 import { prisma } from "../database/prisma.database";
 import { LoginDto } from "../dtos";
 import { ResponseApi } from "../types";
-import { Bcrypt } from "../utils/bcrypt";
-import { Student } from "@prisma/client";
-import { JWT } from "../utils/jwt";
-import { AuthStudent } from "../types/student.types";
+import { JWT} from "../utils/jwt";
+import { StudentToken } from "../types/student.types";
 
 export class AuthService {
   public async login(data: LoginDto): Promise<ResponseApi> {
@@ -24,33 +21,27 @@ export class AuthService {
       };
     }
 
-    // 2 - Verficar a senha (hash - bcrypt)
-    const hash = student.password;
-    const bcrypt = new Bcrypt();
-    const isValidPassword = await bcrypt.verify(password, hash);
-
-    if (!isValidPassword) {
+    if (password !== student.password) {
       return {
         ok: false,
         code: 404,
-        message: "E-mail ou senha incorretos. (password)",
+        message: "E-mail ou senha incorretos.",
       };
     }
 
-    // 3 - Gerar o token (uid)
+    // Gerar o token (uid)
     const jwt = new JWT();
 
-    const payload: AuthStudent = {
+    const payload: StudentToken = {
       id: student.id,
       name: student.name,
       email: student.email,
+      type: student.type,
     };
 
     const token = jwt.genereteToken(payload);
 
-
-
-    // 4 - Feed de sucesso retornando o token (uid)
+    // Feed de sucesso retornando o token (uid)
     return {
       ok: true,
       code: 200,
@@ -60,13 +51,5 @@ export class AuthService {
         token,
       },
     };
-  }
-
-  public async validateToken(token: string): Promise<Student | null> {
-    const student = await prisma.student.findFirst({
-      where: { authToken: token },
-    });
-
-    return student;
   }
 }
