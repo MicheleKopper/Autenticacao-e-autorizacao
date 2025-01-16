@@ -1,4 +1,4 @@
-import { Assessment } from "@prisma/client";
+import { Assessment, StudentType } from "@prisma/client";
 import { prisma } from "../database/prisma.database";
 import {
   AssessmentDto,
@@ -6,12 +6,25 @@ import {
   UpdateAssessmentDto,
 } from "../dtos/assessment.dto";
 import { ResponseApi } from "../types";
+import { StudentToken } from "../types/student.types";
 
 export class AssessmentService {
   public async create(
-    createAssessment: CreateAssessmentDto
+    createAssessment: CreateAssessmentDto,
+    studentLogged: StudentToken
   ): Promise<ResponseApi> {
     const { title, description, grade, studentId } = createAssessment;
+
+    if (studentLogged.type === StudentType.M) {
+      // Estudante do tipo matriculado
+      if (studentLogged.id !== studentId) {
+        return {
+          code: 401,
+          ok: false,
+          message: "Não autorizado!",
+        };
+      }
+    }
 
     // studentId = Existe no banco
     const student = await prisma.student.findUnique({
@@ -43,20 +56,12 @@ export class AssessmentService {
     };
   }
 
-  public async findAll(
-    id: string,
-    query?: { page?: number; take?: number }
-  ): Promise<ResponseApi> {
-    // [0, 1, 2, 3]
-    // 1 - 2 - 3
-
-    // 1 => 0
-    // 2 => 1
+  public async findAll(studentLogged: StudentToken): Promise<ResponseApi> {
+    const studentId =
+      studentLogged.type !== StudentType.T ? undefined : studentLogged.id;
 
     const assessmentList = await prisma.assessment.findMany({
-      skip: query?.page, // 1 page
-      take: query?.take, // quantidade
-      where: { studentId: id },
+      where: { studentId },
       orderBy: { createdAt: "asc" },
     });
 

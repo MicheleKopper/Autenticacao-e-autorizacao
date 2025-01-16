@@ -25,11 +25,14 @@ export class JWT {
   public verifyToken(token: string): StudentToken | null {
     try {
       if (!process.env.JWT_SECRET) {
-        throw new Error("Secret not defined");
+        throw new Error("Não foi definido a variável de ambiente JWT_SECRET");
       }
       // Token não assinado = quebra
-      const data = jwt.verify(token, process.env.JWT_SECRET) as StudentToken;
-      return data;
+      const studentValidate = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      ) as StudentToken;
+      return studentValidate;
     } catch {
       return null;
     }

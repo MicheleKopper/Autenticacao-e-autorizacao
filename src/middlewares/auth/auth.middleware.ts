@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthService } from "../../services";
 import { JWT } from "../../utils/jwt";
 
 // (Bearer) => Portador;
@@ -14,7 +13,7 @@ export class AuthMiddleware {
     res: Response,
     next: NextFunction
   ) {
-    const authorization = req.headers.authorization; // token
+    const authorization = req.headers.authorization; // bearer token -> `Bearer ${token}`
 
     if (!authorization) {
       res.status(401).json({
@@ -24,8 +23,15 @@ export class AuthMiddleware {
       return;
     }
 
-    // Remover Bearer antes de validar o token
-    const [Bearer, token] = authorization.split(""); // => [ Bearer, "hsfdsfsdfgerfdsf"]
+    const token = authorization.split("")[1]; // [bearer, token]
+
+    if (!token) {
+      res.status(401).json({
+        ok: false,
+        message: "Não autenticado!",
+      });
+      return;
+    }
 
     const jwt = new JWT();
     const studentDecoded = jwt.verifyToken(token);
@@ -39,14 +45,12 @@ export class AuthMiddleware {
     }
 
     // Repassa essa informação.
-    req.body.student = {
+    req.authStudent = {
       id: studentDecoded.id,
       name: studentDecoded.name,
       email: studentDecoded.email,
       type: studentDecoded.type,
     };
-
-    req.body.outro = "DEU BOM";
 
     next();
   }
