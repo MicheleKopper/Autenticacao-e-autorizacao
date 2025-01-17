@@ -1,7 +1,7 @@
 import { prisma } from "../database/prisma.database";
 import { LoginDto } from "../dtos";
 import { ResponseApi } from "../types";
-import { JWT} from "../utils/jwt";
+import { JWT } from "../utils/jwt";
 import { StudentToken } from "../types/student.types";
 
 export class AuthService {

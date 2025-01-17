@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 
+
 export class Bcrypt {
   // Embaralhar a nossa senha (criar o hash) => // $2a$10$..Z1P/ls25bYKpWYocayUuh/nmIPnAo2ScuEId7vBdBMNK/vnJGzS
   public async generateHash(password: string): Promise<string> {

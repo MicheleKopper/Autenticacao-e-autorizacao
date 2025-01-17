@@ -19,7 +19,7 @@ export class AuthMiddleware {
     if (!authorization) {
       res.status(401).json({
         ok: false,
-        message: "Não autenticado! 1",
+        message: "Não autenticado!",
       });
       return;
     }
@@ -29,7 +29,7 @@ export class AuthMiddleware {
     if (!token) {
       res.status(401).json({
         ok: false,
-        message: "Não autenticado! 2",
+        message: "Não autenticado!",
       });
       return;
     }
@@ -44,7 +44,7 @@ export class AuthMiddleware {
 
       res.status(401).json({
         ok: false,
-        message: "Não autenticado! 3",
+        message: "Não autenticado!",
       });
       return;
     }
